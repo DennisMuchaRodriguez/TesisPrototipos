@@ -1,0 +1,403 @@
+fileFormatVersion: 2
+guid: a60fd571c58ff094e8664068e847aa99
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5488538235216927111
+    second: TableroCorriente2_0
+  - first:
+      213: 6486451229771368523
+    second: TableroCorriente2_1
+  - first:
+      213: 3147400318451265366
+    second: TableroCorriente2_2
+  - first:
+      213: -7379911158592814496
+    second: TableroCorriente2_3
+  - first:
+      213: 4192076378698077503
+    second: TableroCorriente2_4
+  - first:
+      213: 4017571193560715057
+    second: TableroCorriente2_5
+  - first:
+      213: 3180810214954835707
+    second: TableroCorriente2_6
+  - first:
+      213: -6334718778864428054
+    second: TableroCorriente2_7
+  - first:
+      213: 1813089219665891721
+    second: TableroCorriente2_8
+  - first:
+      213: -7534045604044180774
+    second: TableroCorriente2_9
+  - first:
+      213: 6719872473119065751
+    second: TableroCorriente2_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 300
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TableroCorriente2_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1176
+        width: 2000
+        height: 1132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 789114602743b2c40800000000000000
+      internalID: 5488538235216927111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_1
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 766
+        width: 232
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b480b6bd601840a50800000000000000
+      internalID: 6486451229771368523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_2
+      rect:
+        serializedVersion: 2
+        x: 1308
+        y: 766
+        width: 234
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65f2d3bf9efcdab20800000000000000
+      internalID: 3147400318451265366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_3
+      rect:
+        serializedVersion: 2
+        x: 402
+        y: 384
+        width: 88
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0624226d6e9459990800000000000000
+      internalID: -7379911158592814496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_4
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 384
+        width: 88
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f35da9f714f3d2a30800000000000000
+      internalID: 4192076378698077503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_5
+      rect:
+        serializedVersion: 2
+        x: 693
+        y: 384
+        width: 88
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13f470ce6b741c730800000000000000
+      internalID: 4017571193560715057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_6
+      rect:
+        serializedVersion: 2
+        x: 1236
+        y: 384
+        width: 87
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfe1150b902842c20800000000000000
+      internalID: 3180810214954835707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_7
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 384
+        width: 88
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aeb1ac955de8618a0800000000000000
+      internalID: -6334718778864428054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_8
+      rect:
+        serializedVersion: 2
+        x: 1526
+        y: 384
+        width: 89
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98196440a03692910800000000000000
+      internalID: 1813089219665891721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_9
+      rect:
+        serializedVersion: 2
+        x: 441
+        y: 245
+        width: 340
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad27a51b071b17790800000000000000
+      internalID: -7534045604044180774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TableroCorriente2_10
+      rect:
+        serializedVersion: 2
+        x: 1256
+        y: 262
+        width: 340
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79600303968c14d50800000000000000
+      internalID: 6719872473119065751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TableroCorriente2_0: 5488538235216927111
+      TableroCorriente2_1: 6486451229771368523
+      TableroCorriente2_10: 6719872473119065751
+      TableroCorriente2_2: 3147400318451265366
+      TableroCorriente2_3: -7379911158592814496
+      TableroCorriente2_4: 4192076378698077503
+      TableroCorriente2_5: 4017571193560715057
+      TableroCorriente2_6: 3180810214954835707
+      TableroCorriente2_7: -6334718778864428054
+      TableroCorriente2_8: 1813089219665891721
+      TableroCorriente2_9: -7534045604044180774
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
