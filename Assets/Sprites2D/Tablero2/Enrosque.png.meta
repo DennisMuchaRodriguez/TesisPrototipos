@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fbc6c74a5618b564abb3a30982636bac
+guid: dff1ac37ba4cb3a489b1c5de32bec5e4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7168781597774098268
-    second: APrototipo_0
+      213: -2306652932212675569
+    second: Enrosque_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: APrototipo_0
+      name: Enrosque_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2000
-        height: 2000
+        x: 100
+        y: 120
+        width: 824
+        height: 784
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c5faeaf91e0ac7360800000000000000
-      internalID: 7168781597774098268
+      spriteID: f0ca95b116f1dffd0800000000000000
+      internalID: -2306652932212675569
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      APrototipo_0: 7168781597774098268
+      Enrosque_0: -2306652932212675569
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
