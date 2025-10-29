@@ -5,8 +5,6 @@ using TMPro;
 
 public class SimulationManager : MonoBehaviour
 {
-    public static SimulationManager Instance;
-
     public class GeneratorData
     {
         public float Voltage = 0f;
@@ -24,21 +22,8 @@ public class SimulationManager : MonoBehaviour
     private List<PanelButton> _toggleButtons = new List<PanelButton>();
     private bool _isSimulationFinishing = false;
 
-    public float MinIdealVoltage = 10f;
-    public float MaxIdealVoltage = 12f;
-
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+    public float MinIdealVoltage = 200f;
+    public float MaxIdealVoltage = 220f;
 
     public void RegisterToggleButton(PanelButton button)
     {
@@ -65,7 +50,6 @@ public class SimulationManager : MonoBehaviour
             {
                 currentToAdd += 10f;
             }
-
         }
         CurrentGeneratorData.Current = currentToAdd;
     }
@@ -84,8 +68,6 @@ public class SimulationManager : MonoBehaviour
         _isSimulationFinishing = false;
     }
 
-
-
     public void ResetSimulation()
     {
         CurrentGeneratorData = new GeneratorData();
@@ -96,6 +78,5 @@ public class SimulationManager : MonoBehaviour
         {
             resultsPanel.SetActive(false);
         }
-        
     }
 }

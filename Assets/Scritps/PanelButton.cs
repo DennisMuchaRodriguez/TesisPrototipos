@@ -10,11 +10,13 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
     {
         RotateAndAdd,
         ToggleAndAdd,
-        FinishSimulation
+        FinishSimulation,
+        SequenceStep // Nuevo tipo para pasos de secuencia
     }
 
     [Header("Configuración")]
     public ButtonType buttonType;
+    public string buttonId; // ID único para identificar el botón en la secuencia
 
     [Header("Rotación Configurable")]
     public float rotationAmount = 45f;
@@ -31,29 +33,32 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
     private int _currentRotationCount = 0;
     private bool _reverseRotation = false;
     private AudioSource _audioSource;
-
+    private SequenceManager sequenceManager;
+    private SimulationManager simulationManager;
     void Start()
     {
         _image = GetComponent<Image>();
 
-      
         _audioSource = GetComponent<AudioSource>();
         if (_audioSource == null)
         {
             _audioSource = gameObject.AddComponent<AudioSource>();
         }
 
+     
+        sequenceManager = FindFirstObjectByType<SequenceManager>();
+        simulationManager = FindFirstObjectByType<SimulationManager>();
         if (buttonType == ButtonType.ToggleAndAdd)
         {
-            SimulationManager.Instance.RegisterToggleButton(this);
+            simulationManager.RegisterToggleButton(this);
         }
     }
 
     void OnDestroy()
     {
-        if (buttonType == ButtonType.ToggleAndAdd && SimulationManager.Instance != null)
+        if (buttonType == ButtonType.ToggleAndAdd && simulationManager != null)
         {
-            SimulationManager.Instance.UnregisterToggleButton(this);
+            simulationManager.UnregisterToggleButton(this);
         }
     }
 
@@ -73,9 +78,35 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
 
             case ButtonType.FinishSimulation:
                 PlaySound(finishSound);
-                SimulationManager.Instance.FinishSimulation();
+                if (simulationManager != null)
+                    simulationManager.FinishSimulation();
+                break;
+
+            case ButtonType.SequenceStep:
+                PlaySound(rotateSound);
+                HandleSequenceStep();
                 break;
         }
+
+       
+        if (!string.IsNullOrEmpty(buttonId) && sequenceManager != null)
+        {
+            sequenceManager.RegisterButtonPress(buttonId);
+        }
+    }
+
+    private void HandleSequenceStep()
+    {
+        float direction = _reverseRotation ? -1f : 1f;
+        transform.Rotate(0f, 0f, rotationAmount * direction);
+        _currentRotationCount++;
+
+        if (_currentRotationCount >= maxRotations)
+        {
+            _reverseRotation = !_reverseRotation;
+            _currentRotationCount = 0;
+        }
+
     }
 
     private void PlaySound(AudioClip clip)
@@ -98,7 +129,9 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
             _currentRotationCount = 0;
         }
 
-        SimulationManager.Instance.CurrentGeneratorData.Voltage += 1;
+
+        if (simulationManager != null)
+            simulationManager.CurrentGeneratorData.Voltage += 1;
     }
 
     private void HandleToggleAndAdd()
@@ -106,7 +139,9 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
         _isActive = !_isActive;
         transform.Rotate(0f, 0f, rotationToggle);
         _image.color = _isActive ? Color.white : Color.gray;
-        SimulationManager.Instance.UpdateCurrentFromToggleButtons();
+
+        if (simulationManager != null)
+            simulationManager.UpdateCurrentFromToggleButtons();
     }
 
     public bool IsActive() => _isActive;

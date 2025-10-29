@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 public class MoveCamera : MonoBehaviour
 {
     [Header("Posiciones de la cámara")]
@@ -12,14 +12,14 @@ public class MoveCamera : MonoBehaviour
     public GameObject Canva;
 
     [Header("Movimiento Vertical")]
-    public float verticalMoveSpeed = 0.1f;
+    public float verticalMoveSpeed = 2f;
     public KeyCode upKey = KeyCode.W;
     public KeyCode downKey = KeyCode.S;
 
     [Header("Zoom Inicial")]
     public float startSize = 41.0f;
     public float targetSize = 6.29f;
-    public float zoomSpeed = 1f;
+    public float zoomSpeed = 3f;
 
     [Header("Posiciones Camara")]
     public GameObject StartCamera;
@@ -30,6 +30,7 @@ public class MoveCamera : MonoBehaviour
     private float currentVerticalOffset = 0f;
     private Camera mainCamera;
     private bool isZooming = true;
+    private bool canMoveVertically = false;
 
     void Start()
     {
@@ -47,51 +48,79 @@ public class MoveCamera : MonoBehaviour
             return;
         }
 
-  
+        // Inicializar en posición de inicio
         transform.position = StartCamera.transform.position;
         mainCamera.orthographicSize = startSize;
 
-        originalPosition = cameraPositions[currentPositionIndex].position;
-        MoveCameraToPosition(currentPositionIndex);
-        UpdateButtons();
+        // Configurar posición actual
+        originalPosition = FinishCamera.transform.position;
+        cameraPositions[0] = FinishCamera.transform;
 
-      
         if (Canva != null)
             Canva.SetActive(false);
+
+        UpdateButtons();
     }
 
     void Update()
     {
+        HandleZoom();
+        HandleVerticalMovement();
+    }
+
+    private void HandleZoom()
+    {
         if (isZooming)
         {
-            
+            // Aplicar zoom suavemente
             transform.position = Vector3.Lerp(transform.position, FinishCamera.transform.position, Time.deltaTime * zoomSpeed);
             mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, targetSize, Time.deltaTime * zoomSpeed);
 
-            if (Vector3.Distance(transform.position, FinishCamera.transform.position) < 0.01f &&
-                Mathf.Abs(mainCamera.orthographicSize - targetSize) < 0.01f)
+            // Verificar si el zoom ha terminado
+            float distanceThreshold = 0.05f;
+            float sizeThreshold = 0.05f;
+
+            if (Vector3.Distance(transform.position, FinishCamera.transform.position) < distanceThreshold &&
+                Mathf.Abs(mainCamera.orthographicSize - targetSize) < sizeThreshold)
             {
+                // Finalizar zoom
                 transform.position = FinishCamera.transform.position;
                 mainCamera.orthographicSize = targetSize;
                 isZooming = false;
+                canMoveVertically = true;
 
-                cameraPositions[0] = FinishCamera.transform;
+                // Activar canvas
                 if (Canva != null)
                     Canva.SetActive(true);
+
+                // Actualizar posición actual
+                originalPosition = FinishCamera.transform.position;
+                UpdateButtons();
             }
         }
-        else
+    }
+
+    private void HandleVerticalMovement()
+    {
+        if (!canMoveVertically || isZooming) return;
+
+        float verticalInput = 0f;
+
+        if (Input.GetKey(upKey))
+            verticalInput = 1f;
+        else if (Input.GetKey(downKey))
+            verticalInput = -1f;
+
+        if (verticalInput != 0f)
         {
-         
-            if (Input.GetKey(upKey))
-                MoveVertical(verticalMoveSpeed);
-            else if (Input.GetKey(downKey))
-                MoveVertical(-verticalMoveSpeed);
+            MoveVertical(verticalInput * verticalMoveSpeed * Time.deltaTime);
         }
     }
 
     public void MoveLeft()
     {
+        if (isZooming) return;
+
         if (currentPositionIndex > 0)
         {
             currentPositionIndex--;
@@ -102,6 +131,8 @@ public class MoveCamera : MonoBehaviour
 
     public void MoveRight()
     {
+        if (isZooming) return;
+
         if (currentPositionIndex < cameraPositions.Length - 1)
         {
             currentPositionIndex++;
@@ -112,6 +143,8 @@ public class MoveCamera : MonoBehaviour
 
     private void MoveVertical(float amount)
     {
+        if (!canMoveVertically || isZooming) return;
+
         float newOffset = Mathf.Clamp(currentVerticalOffset + amount, -53.8f, -1.02f);
 
         if (newOffset != currentVerticalOffset)
@@ -123,25 +156,48 @@ public class MoveCamera : MonoBehaviour
 
     private void MoveCameraToPosition(int index)
     {
-        if (index >= 0 && index < cameraPositions.Length)
+        if (index >= 0 && index < cameraPositions.Length && cameraPositions[index] != null)
         {
             currentPositionIndex = index;
             originalPosition = cameraPositions[index].position;
-            currentVerticalOffset = 0f;
+            currentVerticalOffset = 0f; // Resetear offset vertical al cambiar de posición
             UpdateCameraPosition();
         }
     }
 
     private void UpdateCameraPosition()
     {
-        transform.position = originalPosition + Vector3.up * currentVerticalOffset;
-        transform.rotation = cameraPositions[currentPositionIndex].rotation;
+        if (cameraPositions[currentPositionIndex] != null)
+        {
+            Vector3 targetPosition = originalPosition + Vector3.up * currentVerticalOffset;
+            transform.position = targetPosition;
+            transform.rotation = cameraPositions[currentPositionIndex].rotation;
+        }
     }
 
     private void UpdateButtons()
     {
-        leftButton.interactable = currentPositionIndex > 0;
-        rightButton.interactable = currentPositionIndex < cameraPositions.Length - 1;
+        if (leftButton != null)
+            leftButton.interactable = (currentPositionIndex > 0) && !isZooming;
+
+        if (rightButton != null)
+            rightButton.interactable = (currentPositionIndex < cameraPositions.Length - 1) && !isZooming;
     }
 
+    // Método público para forzar el fin del zoom (por si necesitas debug)
+    public void SkipZoom()
+    {
+        if (isZooming)
+        {
+            transform.position = FinishCamera.transform.position;
+            mainCamera.orthographicSize = targetSize;
+            isZooming = false;
+            canMoveVertically = true;
+
+            if (Canva != null)
+                Canva.SetActive(true);
+
+            UpdateButtons();
+        }
+    }
 }
