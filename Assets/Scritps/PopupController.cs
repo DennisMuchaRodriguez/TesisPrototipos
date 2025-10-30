@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 public class PopupController : MonoBehaviour
 {
     [Header("UI References")]
@@ -13,6 +14,10 @@ public class PopupController : MonoBehaviour
     [SerializeField] private Button empezarApagadoButton;
     [SerializeField] private Button finalizarButton;
     [SerializeField] private string menuSceneName = "Menu";
+
+    [SerializeField] private GameObject otroPopupPanel; 
+    [SerializeField] private Button abrirOtroPopupButton;
+    private Vector3 escalaOriginalOtroPopup;
     public SequenceManager sequenceManager;
     public SimulationManager simulationManager;
     private bool isApagadoMode = false;
@@ -20,6 +25,10 @@ public class PopupController : MonoBehaviour
     void Start()
     {
         popupPanel.SetActive(false);
+        otroPopupPanel.SetActive(false);
+
+        escalaOriginalOtroPopup = otroPopupPanel.transform.localScale;
+        otroPopupPanel.transform.localScale = Vector3.zero;
 
         if (simulationManager != null)
             simulationManager.OnSimulationFinished.AddListener(ShowPopup);
@@ -27,14 +36,19 @@ public class PopupController : MonoBehaviour
         closeButton.onClick.AddListener(() => { ReturnToMenu(); });
         empezarApagadoButton.onClick.AddListener(() => { EmpezarApagado(); });
         finalizarButton.onClick.AddListener(() => { FinalizarSimulacion(); });
-
+        abrirOtroPopupButton.onClick.AddListener(() => { AbrirOtroPopup(); });
         UpdateButtons();
     }
 
     public void ShowPopup()
     {
-
         popupPanel.SetActive(true);
+
+        
+        popupPanel.transform.localScale = Vector3.zero;
+        popupPanel.transform.DOScale(Vector3.one, 0.5f)
+            .SetEase(Ease.OutBack)
+            .SetUpdate(true);
 
         float tiempo = isApagadoMode ?
             sequenceManager.GetCompletionTime() :
@@ -44,7 +58,6 @@ public class PopupController : MonoBehaviour
         bool procesoCompleto = isApagadoMode ?
             sequenceManager.isShutdownComplete :
             sequenceManager.isStartupComplete;
-
 
         string procesoNombre = isApagadoMode ? "APAGADO" : "ENCENDIDO";
 
@@ -86,6 +99,12 @@ public class PopupController : MonoBehaviour
 
         sequenceManager.ResetApagadoTime();
     }
+    public void AbrirOtroPopup()
+    {
+        otroPopupPanel.SetActive(true);
+        otroPopupPanel.transform.localScale = Vector3.zero;
+        otroPopupPanel.transform.DOScale(escalaOriginalOtroPopup, 0.4f).SetEase(Ease.OutBack);
+    }
 
     private void FinalizarSimulacion()
     {
@@ -105,15 +124,29 @@ public class PopupController : MonoBehaviour
             finalizarButton.gameObject.SetActive(false);
         }
     }
-
+    public void CerrarOtroPopup()
+    {
+        otroPopupPanel.transform.DOScale(Vector3.zero, 0.3f)
+            .SetEase(Ease.InBack)
+            .OnComplete(() => {
+                otroPopupPanel.SetActive(false);
+                
+                otroPopupPanel.transform.localScale = escalaOriginalOtroPopup;
+            });
+    }
     private void ReturnToMenu()
     {
-        if (simulationManager != null)
-            simulationManager.ResetSimulation();
+    
+        popupPanel.transform.DOScale(Vector3.zero, 0.3f)
+            .SetEase(Ease.InBack)
+            .OnComplete(() => {
+                if (simulationManager != null)
+                    simulationManager.ResetSimulation();
 
-        sequenceManager.ResetSequence();
-        isApagadoMode = false;
-        SceneManager.LoadScene(menuSceneName);
-        Time.timeScale = 1f;
+                sequenceManager.ResetSequence();
+                isApagadoMode = false;
+                SceneManager.LoadScene(menuSceneName);
+                Time.timeScale = 1f;
+            });
     }
 }
