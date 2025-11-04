@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class SequenceManager : MonoBehaviour
@@ -36,28 +37,41 @@ public class SequenceManager : MonoBehaviour
     public UnityEvent OnShutdownComplete = new UnityEvent();
     public UnityEvent OnSequenceError = new UnityEvent();
 
- 
+    [Header("Feedback de Error")]
+    public AudioClip errorSound;
+    public GameObject errorMessagePanel;
+    public TMP_Text errorText;
+    public float errorDisplayTime = 2f;
+
+    private AudioSource audioSource;
 
     void Start()
     {
         simulationManager = FindFirstObjectByType<SimulationManager>();
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
         startTime = Time.time;
         ResetSequence();
+
+        if (errorMessagePanel != null)
+            errorMessagePanel.SetActive(false);
     }
 
-    public void RegisterButtonPress(string buttonId)
+    public bool RegisterButtonPress(string buttonId)
     {
         if (!isStartupComplete)
         {
-            CheckStartupSequence(buttonId);
+            return CheckStartupSequence(buttonId);
         }
         else if (!isShutdownComplete)
         {
-            CheckShutdownSequence(buttonId);
+            return CheckShutdownSequence(buttonId);
         }
+        return true;
     }
 
-    private void CheckStartupSequence(string buttonId)
+    private bool CheckStartupSequence(string buttonId)
     {
         if (currentStartupStep < startupSequence.Count)
         {
@@ -73,21 +87,26 @@ public class SequenceManager : MonoBehaviour
                     isStartupComplete = true;
                     completionTime = Time.time - startTime;
                     OnStartupComplete.Invoke();
-                    
+
                     simulationManager.FinishSimulation();
                     Debug.Log("Startup sequence completed!");
                 }
+                return true; 
             }
             else
             {
+               
+                ShowError(currentStep.errorMessage);
                 if (simulationManager != null)
                     simulationManager.ActiveErrors.Add(currentStep.errorMessage);
                 OnSequenceError.Invoke();
+                return false; 
             }
         }
+        return true;
     }
 
-    private void CheckShutdownSequence(string buttonId)
+    private bool CheckShutdownSequence(string buttonId)
     {
         if (currentShutdownStep < shutdownSequence.Count)
         {
@@ -106,14 +125,19 @@ public class SequenceManager : MonoBehaviour
                     if (simulationManager != null)
                         simulationManager.FinishSimulation();
                 }
+                return true; 
             }
             else
             {
+                
+                ShowError(currentStep.errorMessage);
                 if (simulationManager != null)
                     simulationManager.ActiveErrors.Add(currentStep.errorMessage);
                 OnSequenceError.Invoke();
+                return false; 
             }
         }
+        return true;
     }
 
     public void ResetSequence()
@@ -133,6 +157,33 @@ public class SequenceManager : MonoBehaviour
         {
             step.isCompleted = false;
         }
+    }
+    private void ShowError(string errorMessage)
+    {
+        if (errorSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(errorSound);
+        }
+            
+
+       
+        if (errorMessagePanel != null && errorText != null)
+        {
+            errorText.text = errorMessage;
+            errorMessagePanel.SetActive(true);
+
+      
+            Invoke("HideError", errorDisplayTime);
+        }
+    }
+
+    private void HideError()
+    {
+        if (errorMessagePanel != null)
+        {
+            errorMessagePanel.SetActive(false);
+        }
+            
     }
     public void ResetApagadoTime()
     {

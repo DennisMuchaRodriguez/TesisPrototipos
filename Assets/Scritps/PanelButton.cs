@@ -11,12 +11,12 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
         RotateAndAdd,
         ToggleAndAdd,
         FinishSimulation,
-        SequenceStep // Nuevo tipo para pasos de secuencia
+        SequenceStep 
     }
 
     [Header("Configuración")]
     public ButtonType buttonType;
-    public string buttonId; // ID único para identificar el botón en la secuencia
+    public string buttonId; 
 
     [Header("Rotación Configurable")]
     public float rotationAmount = 45f;
@@ -64,34 +64,38 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        switch (buttonType)
-        {
-            case ButtonType.RotateAndAdd:
-                PlaySound(rotateSound);
-                HandleRotateAndAdd();
-                break;
-
-            case ButtonType.ToggleAndAdd:
-                PlaySound(toggleSound);
-                HandleToggleAndAdd();
-                break;
-
-            case ButtonType.FinishSimulation:
-                PlaySound(finishSound);
-                if (simulationManager != null)
-                    simulationManager.FinishSimulation();
-                break;
-
-            case ButtonType.SequenceStep:
-                PlaySound(rotateSound);
-                HandleSequenceStep();
-                break;
-        }
-
-       
+        bool fueCorrecto = true;
         if (!string.IsNullOrEmpty(buttonId) && sequenceManager != null)
         {
-            sequenceManager.RegisterButtonPress(buttonId);
+            fueCorrecto = sequenceManager.RegisterButtonPress(buttonId);
+        }
+
+        // Solo rotar si fue correcto o si no es un botón de secuencia
+        if (fueCorrecto || string.IsNullOrEmpty(buttonId))
+        {
+            switch (buttonType)
+            {
+                case ButtonType.RotateAndAdd:
+                    PlaySound(rotateSound);
+                    HandleRotateAndAdd();
+                    break;
+
+                case ButtonType.ToggleAndAdd:
+                    PlaySound(toggleSound);
+                    HandleToggleAndAdd();
+                    break;
+
+                case ButtonType.FinishSimulation:
+                    PlaySound(finishSound);
+                    if (simulationManager != null)
+                        simulationManager.FinishSimulation();
+                    break;
+
+                case ButtonType.SequenceStep:
+                    PlaySound(rotateSound);
+                    HandleSequenceStep();
+                    break;
+            }
         }
     }
 
@@ -131,7 +135,10 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
 
 
         if (simulationManager != null)
+        {
             simulationManager.CurrentGeneratorData.Voltage += 1;
+        }
+            
     }
 
     private void HandleToggleAndAdd()
@@ -141,7 +148,10 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
         _image.color = _isActive ? Color.white : Color.gray;
 
         if (simulationManager != null)
+        {
             simulationManager.UpdateCurrentFromToggleButtons();
+        }
+           
     }
 
     public bool IsActive() => _isActive;
