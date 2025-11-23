@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-
+using System.Collections.Generic;
 [RequireComponent(typeof(Button), typeof(Image))]
 public class PanelButton : MonoBehaviour, IPointerDownHandler
 {
@@ -27,6 +27,13 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
     public AudioClip rotateSound;
     public AudioClip toggleSound;
     public AudioClip finishSound;
+
+    [Header("Configuración de Medidores")]
+    public bool controlaMedidores = false;
+    public List<GameObject> medidoresAControlar; // Arrastra los medidores aquí
+    public float valorMinimo = 0f;
+    public float valorMaximo = 100f;
+    public float incrementoPorClick = 10f;
 
     private bool _isActive = true;
     private Image _image;
@@ -97,6 +104,11 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
                     break;
             }
         }
+
+        if (controlaMedidores)
+        {
+            HandleMedidores();
+        }
     }
 
     private void HandleSequenceStep()
@@ -161,5 +173,30 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
         _currentRotationCount = 0;
         _reverseRotation = false;
         transform.rotation = Quaternion.identity;
+    }
+
+    private void HandleMedidores()
+    {
+        if (!controlaMedidores || medidoresAControlar.Count == 0) return;
+
+        foreach (GameObject medidor in medidoresAControlar)
+        {
+            // Aquí implementas la rotación del medidor según tu sistema
+            RotateMeter(medidor, incrementoPorClick);
+        }
+    }
+
+    private void RotateMeter(GameObject medidor, float incremento)
+    {
+        // Ejemplo básico - ajusta según cómo tengas implementados tus medidores
+        Transform needle = medidor.transform.Find("Aguja"); // o el nombre que uses
+        if (needle != null)
+        {
+            // Calcula rotación basada en el rango
+            float porcentaje = Mathf.Clamp01((incremento - valorMinimo) / (valorMaximo - valorMinimo));
+            float rotacion = Mathf.Lerp(0f, 270f, porcentaje); // Ejemplo: 0° a 270°
+
+            needle.localRotation = Quaternion.Euler(0f, 0f, -rotacion);
+        }
     }
 }

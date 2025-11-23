@@ -11,7 +11,7 @@ public class SequenceManager : MonoBehaviour
     public class SimulationStep
     {
         public string stepName;
-        public string requiredButtonId;
+        public List<string> validButtonIds;
         public bool isCompleted = false;
         public string errorMessage;
     }
@@ -77,7 +77,8 @@ public class SequenceManager : MonoBehaviour
         {
             SimulationStep currentStep = startupSequence[currentStartupStep];
 
-            if (buttonId == currentStep.requiredButtonId)
+            // Verificar si el botón presionado está en la lista de válidos
+            if (currentStep.validButtonIds.Contains(buttonId))
             {
                 currentStep.isCompleted = true;
                 currentStartupStep++;
@@ -91,7 +92,7 @@ public class SequenceManager : MonoBehaviour
                     simulationManager.FinishSimulation();
                     Debug.Log("Startup sequence completed!");
                 }
-                return true; 
+                return true;
             }
             else
             {
@@ -112,7 +113,7 @@ public class SequenceManager : MonoBehaviour
         {
             SimulationStep currentStep = shutdownSequence[currentShutdownStep];
 
-            if (buttonId == currentStep.requiredButtonId)
+            if (currentStep.validButtonIds.Contains(buttonId))
             {
                 currentStep.isCompleted = true;
                 currentShutdownStep++;
