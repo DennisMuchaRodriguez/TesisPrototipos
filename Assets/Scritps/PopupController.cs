@@ -21,35 +21,48 @@ public class PopupController : MonoBehaviour
     public SequenceManager sequenceManager;
     public SimulationManager simulationManager;
     private bool isApagadoMode = false;
+    [Header("Referencias de Cámara")]
+    public MoveCamera moveCamera;
+    public Transform popupCameraTarget;
+    [Header("Objeto a activar/desactivar")]
+    public GameObject objetoEspecial;
 
     void Start()
     {
         popupPanel.SetActive(false);
         otroPopupPanel.SetActive(false);
 
+        
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(false);
+
         escalaOriginalOtroPopup = otroPopupPanel.transform.localScale;
         otroPopupPanel.transform.localScale = Vector3.zero;
 
         if (simulationManager != null)
-            simulationManager.OnSimulationFinished.AddListener(ShowPopup);
+            simulationManager.OnSimulationFinished.AddListener(StartPopupSequence);
+
+     
+        if (moveCamera != null && popupCameraTarget != null)
+        {
+            moveCamera.popupCameraPosition = popupCameraTarget;
+            moveCamera.OnCameraReachedPopupPosition.RemoveListener(ShowPopupAfterDelay); // Limpiar primero
+            moveCamera.OnCameraReachedPopupPosition.AddListener(ShowPopupAfterDelay);
+        }
+
 
         closeButton.onClick.AddListener(() => { ReturnToMenu(); });
         empezarApagadoButton.onClick.AddListener(() => { EmpezarApagado(); });
         finalizarButton.onClick.AddListener(() => { FinalizarSimulacion(); });
         abrirOtroPopupButton.onClick.AddListener(() => { AbrirOtroPopup(); });
         UpdateButtons();
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(false);
     }
-
+    private bool popupSequenceStarted = false;
     public void ShowPopup()
     {
-        popupPanel.SetActive(true);
-
-        
-        popupPanel.transform.localScale = Vector3.zero;
-        popupPanel.transform.DOScale(Vector3.one, 0.5f)
-            .SetEase(Ease.OutBack)
-            .SetUpdate(true);
-
+        // Solo preparar los datos, no mostrar aún
         float tiempo = isApagadoMode ?
             sequenceManager.GetCompletionTime() :
             sequenceManager.GetStartupTime();
@@ -91,8 +104,20 @@ public class PopupController : MonoBehaviour
 
     private void EmpezarApagado()
     {
+        popupSequenceStarted = false;
         isApagadoMode = true;
         popupPanel.SetActive(false);
+
+        
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(false);
+
+   
+        if (moveCamera != null)
+        {
+            moveCamera.EnableControls();
+            moveCamera.MoveToSpecificPosition(1);
+        }
 
         if (simulationManager != null)
             simulationManager.ActiveErrors.Clear();
@@ -110,6 +135,42 @@ public class PopupController : MonoBehaviour
     {
         ReturnToMenu();
     }
+    public void StartPopupSequence()
+    {
+        Debug.Log("StartPopupSequence llamado");
+
+        if (popupSequenceStarted)
+        {
+            Debug.Log("Popup sequence ya estaba iniciada, ignorando...");
+            return;
+        }
+
+        popupSequenceStarted = true;
+
+        
+        if (objetoEspecial != null)
+        {
+            objetoEspecial.SetActive(true);
+            Debug.Log("Objeto especial activado inmediatamente");
+        }
+
+        if (moveCamera != null && !moveCamera.IsMovingToPopup())
+        {
+            Debug.Log("Moviendo cámara a posición popup...");
+            moveCamera.MoveToPopupPosition();
+        }
+        else
+        {
+            Debug.Log("Fallback: mostrando popup directamente");
+            ShowPopupConAnimacion();
+        }
+    }
+    private void ShowPopupAfterDelay()
+    {
+        Debug.Log("ShowPopupAfterDelay llamado - mostrando popup");
+        ShowPopupConAnimacion();
+    }
+
 
     private void UpdateButtons()
     {
@@ -134,9 +195,31 @@ public class PopupController : MonoBehaviour
                 otroPopupPanel.transform.localScale = escalaOriginalOtroPopup;
             });
     }
+    private void ShowPopupConAnimacion()
+    {
+        
+        ShowPopup();
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(true);
+
+        popupPanel.SetActive(true);
+        popupPanel.transform.localScale = Vector3.zero;
+        popupPanel.transform.DOScale(Vector3.one, 0.5f)
+            .SetEase(Ease.OutBack)
+            .SetUpdate(true);
+    }
     private void ReturnToMenu()
     {
+        popupSequenceStarted = false;
+
+  
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(false);
+
     
+        if (moveCamera != null)
+            moveCamera.EnableControls();
+
         popupPanel.transform.DOScale(Vector3.zero, 0.3f)
             .SetEase(Ease.InBack)
             .OnComplete(() => {

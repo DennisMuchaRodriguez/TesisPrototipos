@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,11 +20,11 @@ public class SequenceManager : MonoBehaviour
     public SimulationManager simulationManager;
 
 
-    [Header("Pasos de la Simulación")]
+    [Header("Pasos de la SimulaciÃ³n")]
     public List<SimulationStep> startupSequence = new List<SimulationStep>();
     public List<SimulationStep> shutdownSequence = new List<SimulationStep>();
 
-    [Header("Configuración")]
+    [Header("ConfiguraciÃ³n")]
     public bool isStartupComplete = false;
     public bool isShutdownComplete = false;
     private int currentStartupStep = 0;
@@ -77,7 +77,7 @@ public class SequenceManager : MonoBehaviour
         {
             SimulationStep currentStep = startupSequence[currentStartupStep];
 
-            // Verificar si el botón presionado está en la lista de válidos
+           
             if (currentStep.validButtonIds.Contains(buttonId))
             {
                 currentStep.isCompleted = true;
@@ -89,19 +89,19 @@ public class SequenceManager : MonoBehaviour
                     completionTime = Time.time - startTime;
                     OnStartupComplete.Invoke();
 
-                    simulationManager.FinishSimulation();
+                 
+
                     Debug.Log("Startup sequence completed!");
                 }
                 return true;
             }
             else
             {
-               
                 ShowError(currentStep.errorMessage);
                 if (simulationManager != null)
                     simulationManager.ActiveErrors.Add(currentStep.errorMessage);
                 OnSequenceError.Invoke();
-                return false; 
+                return false;
             }
         }
         return true;
@@ -123,19 +123,18 @@ public class SequenceManager : MonoBehaviour
                     isShutdownComplete = true;
                     completionTime = Time.time - startTime;
                     OnShutdownComplete.Invoke();
-                    if (simulationManager != null)
-                        simulationManager.FinishSimulation();
+
+          
                 }
-                return true; 
+                return true;
             }
             else
             {
-                
                 ShowError(currentStep.errorMessage);
                 if (simulationManager != null)
                     simulationManager.ActiveErrors.Add(currentStep.errorMessage);
                 OnSequenceError.Invoke();
-                return false; 
+                return false;
             }
         }
         return true;
@@ -177,7 +176,11 @@ public class SequenceManager : MonoBehaviour
             Invoke("HideError", errorDisplayTime);
         }
     }
+    public void ShowTemporaryWarning(string warningMessage, float displayTime)
+    {
+        ShowError(warningMessage);
 
+    }
     private void HideError()
     {
         if (errorMessagePanel != null)

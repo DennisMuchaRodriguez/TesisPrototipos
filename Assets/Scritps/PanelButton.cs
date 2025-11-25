@@ -11,9 +11,12 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
         RotateAndAdd,
         ToggleAndAdd,
         FinishSimulation,
-        SequenceStep 
+        SequenceStep,
+        WarningOnly
     }
-
+    [Header("Configuración para WarningOnly")]
+    public string warningMessage = "¡Advertencia!";
+    public float warningDisplayTime = 3f;
     [Header("Configuración")]
     public ButtonType buttonType;
     public string buttonId; 
@@ -102,6 +105,12 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
                     PlaySound(rotateSound);
                     HandleSequenceStep();
                     break;
+
+               
+                case ButtonType.WarningOnly:
+                    PlaySound(rotateSound); 
+                    ShowWarningMessage();
+                    break;
             }
         }
 
@@ -132,7 +141,16 @@ public class PanelButton : MonoBehaviour, IPointerDownHandler
             _audioSource.PlayOneShot(clip);
         }
     }
+    private void ShowWarningMessage()
+    {
+        if (sequenceManager != null)
+        {
+           
+            sequenceManager.ShowTemporaryWarning(warningMessage, warningDisplayTime);
+        }
 
+
+    }
     private void HandleRotateAndAdd()
     {
         float direction = _reverseRotation ? -1f : 1f;
