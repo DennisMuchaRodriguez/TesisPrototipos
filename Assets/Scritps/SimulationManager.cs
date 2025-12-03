@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using TMPro;
+using UnityEngine.SceneManagement; 
 
 public class SimulationManager : MonoBehaviour
 {
@@ -19,11 +20,45 @@ public class SimulationManager : MonoBehaviour
     [SerializeField] private GameObject resultsPanel;
     [SerializeField] private TMP_Text resultText;
 
+    [Header("Configuración de Navegación")]
+    public string menuSceneName = "Menu";
+
     private List<PanelButton> _toggleButtons = new List<PanelButton>();
     private bool _isSimulationFinishing = false;
 
     public float MinIdealVoltage = 200f;
     public float MaxIdealVoltage = 220f;
+
+    public void ReturnToMenu()
+    {
+        ResetSimulation();
+
+        if (!string.IsNullOrEmpty(menuSceneName))
+        {
+            SceneManager.LoadScene(menuSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        Debug.Log("Regresando al menú principal");
+    }
+
+
+    public void ReturnToMenu(string sceneName)
+    {
+        ResetSimulation();
+
+        if (!string.IsNullOrEmpty(sceneName))
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+        else
+        {
+            ReturnToMenu(); 
+        }
+    }
 
     public void RegisterToggleButton(PanelButton button)
     {

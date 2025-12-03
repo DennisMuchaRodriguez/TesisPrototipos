@@ -18,6 +18,11 @@ public class MoveCamera : MonoBehaviour
     public KeyCode upKey = KeyCode.W;
     public KeyCode downKey = KeyCode.S;
 
+    [Header("Movimiento Horizontal con Teclado")] 
+    public KeyCode leftKey = KeyCode.A;
+    public KeyCode rightKey = KeyCode.D;
+    public float keyboardMoveCooldown = 0.3f; 
+
     [Header("Zoom Inicial")]
     public float startSize = 41.0f;
     public float targetSize = 6.29f;
@@ -36,18 +41,21 @@ public class MoveCamera : MonoBehaviour
     public UnityEvent OnCameraReachedPopupPosition;
 
     private bool isMovingToPopup = false;
-
-    private int currentPositionIndex = 1; 
+    private int currentPositionIndex = 1;
     private Vector3 originalPosition;
     private float currentVerticalOffset = 0f;
     private Camera mainCamera;
     private bool isZooming = true;
     private bool canMoveVertically = false;
-
     private float currentMaxY;
     private float currentMinY;
+
+    // NUEVO: Control para el cooldown del teclado
+    private float lastKeyboardMoveTime = 0f;
+
     [Header("Controles")]
     public bool controlsEnabled = true;
+
     void Start()
     {
         mainCamera = GetComponent<Camera>();
@@ -64,10 +72,8 @@ public class MoveCamera : MonoBehaviour
             return;
         }
 
-        
         transform.position = StartCamera.transform.position;
         mainCamera.orthographicSize = startSize;
-
 
         originalPosition = FinishCamera.transform.position;
 
@@ -83,6 +89,7 @@ public class MoveCamera : MonoBehaviour
     {
         HandleZoom();
         HandleVerticalMovement();
+        HandleHorizontalMovement(); // NUEVO: Manejar movimiento horizontal con teclado
     }
 
     private void HandleZoom()
@@ -98,19 +105,16 @@ public class MoveCamera : MonoBehaviour
             if (Vector3.Distance(transform.position, cameraPositions[1].position) < distanceThreshold &&
                 Mathf.Abs(mainCamera.orthographicSize - targetSize) < sizeThreshold)
             {
-             
                 transform.position = cameraPositions[1].position;
                 mainCamera.orthographicSize = targetSize;
                 isZooming = false;
                 canMoveVertically = true;
 
-          
                 if (Canva != null)
                     Canva.SetActive(true);
 
-              
                 originalPosition = cameraPositions[1].position;
-                currentPositionIndex = 1; 
+                currentPositionIndex = 1;
                 UpdateLimitsForCurrentPosition();
                 UpdateButtons();
             }
@@ -131,6 +135,33 @@ public class MoveCamera : MonoBehaviour
         if (verticalInput != 0f)
         {
             MoveVertical(verticalInput * verticalMoveSpeed * Time.deltaTime);
+        }
+    }
+
+    // NUEVO: Manejar movimiento horizontal con teclado
+    private void HandleHorizontalMovement()
+    {
+        if (!canMoveVertically || isZooming || !controlsEnabled || isMovingToPopup) return;
+
+        // Verificar cooldown para evitar movimiento demasiado rápido
+        if (Time.time - lastKeyboardMoveTime < keyboardMoveCooldown) return;
+
+        bool moved = false;
+
+        if (Input.GetKeyDown(leftKey))
+        {
+            MoveLeft();
+            moved = true;
+        }
+        else if (Input.GetKeyDown(rightKey))
+        {
+            MoveRight();
+            moved = true;
+        }
+
+        if (moved)
+        {
+            lastKeyboardMoveTime = Time.time;
         }
     }
 
@@ -197,7 +228,6 @@ public class MoveCamera : MonoBehaviour
             transform.position = targetPosition;
             transform.rotation = cameraPositions[currentPositionIndex].rotation;
 
-          
             mainCamera.orthographicSize = targetSize;
         }
     }
@@ -219,7 +249,7 @@ public class MoveCamera : MonoBehaviour
             mainCamera.orthographicSize = targetSize;
             isZooming = false;
             canMoveVertically = true;
-            currentPositionIndex = 1; 
+            currentPositionIndex = 1;
 
             if (Canva != null)
                 Canva.SetActive(true);
@@ -235,13 +265,12 @@ public class MoveCamera : MonoBehaviour
 
         isMovingToPopup = true;
         canMoveVertically = false;
-        controlsEnabled = false; 
+        controlsEnabled = false;
 
         if (leftButton != null)
             leftButton.interactable = false;
         if (rightButton != null)
             rightButton.interactable = false;
-
 
         transform.DOMove(popupCameraPosition.position, 1.5f)
             .SetEase(Ease.InOutQuad)
@@ -249,7 +278,6 @@ public class MoveCamera : MonoBehaviour
                 Invoke("TriggerPopupEvent", 1.5f);
             });
     }
-
 
     public void MoveToSpecificPosition(int positionIndex)
     {
@@ -273,23 +301,23 @@ public class MoveCamera : MonoBehaviour
         OnCameraReachedPopupPosition?.Invoke();
         isMovingToPopup = false;
     }
+
     public bool IsMovingToPopup() => isMovingToPopup;
+
     public void EnableControls()
     {
         controlsEnabled = true;
         canMoveVertically = true;
         isMovingToPopup = false;
 
-      
         UpdateButtons();
-
         Debug.Log("Controles reactivados");
     }
+
     public void DisableControls()
     {
         controlsEnabled = false;
 
-         
         if (leftButton != null)
             leftButton.interactable = false;
         if (rightButton != null)

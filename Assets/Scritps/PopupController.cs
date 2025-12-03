@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+
 public class PopupController : MonoBehaviour
 {
     [Header("UI References")]
@@ -11,16 +12,21 @@ public class PopupController : MonoBehaviour
     [SerializeField] private TMP_Text erroresText;
     [SerializeField] private TMP_Text tiempoText;
     [SerializeField] private Button closeButton;
+    [SerializeField] private Button empezarIntermedioButton; // NUEVO: Botón para proceso intermedio
     [SerializeField] private Button empezarApagadoButton;
     [SerializeField] private Button finalizarButton;
     [SerializeField] private string menuSceneName = "Menu";
 
-    [SerializeField] private GameObject otroPopupPanel; 
+    [SerializeField] private GameObject otroPopupPanel;
     [SerializeField] private Button abrirOtroPopupButton;
     private Vector3 escalaOriginalOtroPopup;
     public SequenceManager sequenceManager;
     public SimulationManager simulationManager;
-    private bool isApagadoMode = false;
+
+    // NUEVO: Modos de operación
+    public enum ProcessMode { Startup, Intermediate, Shutdown }
+    private ProcessMode currentMode = ProcessMode.Startup;
+
     [Header("Referencias de Cámara")]
     public MoveCamera moveCamera;
     public Transform popupCameraTarget;
@@ -32,53 +38,84 @@ public class PopupController : MonoBehaviour
         popupPanel.SetActive(false);
         otroPopupPanel.SetActive(false);
 
-        
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
 
         escalaOriginalOtroPopup = otroPopupPanel.transform.localScale;
         otroPopupPanel.transform.localScale = Vector3.zero;
 
+        // NUEVO: Suscribirse a todos los eventos de completado
         if (simulationManager != null)
             simulationManager.OnSimulationFinished.AddListener(StartPopupSequence);
 
-     
+        if (sequenceManager != null)
+        {
+            sequenceManager.OnStartupComplete.AddListener(() => ShowResultsPopup(ProcessMode.Startup));
+            sequenceManager.OnIntermediateComplete.AddListener(() => ShowResultsPopup(ProcessMode.Intermediate));
+            sequenceManager.OnShutdownComplete.AddListener(() => ShowResultsPopup(ProcessMode.Shutdown));
+        }
+
         if (moveCamera != null && popupCameraTarget != null)
         {
             moveCamera.popupCameraPosition = popupCameraTarget;
-            moveCamera.OnCameraReachedPopupPosition.RemoveListener(ShowPopupAfterDelay); // Limpiar primero
+            moveCamera.OnCameraReachedPopupPosition.RemoveListener(ShowPopupAfterDelay);
             moveCamera.OnCameraReachedPopupPosition.AddListener(ShowPopupAfterDelay);
         }
 
-
         closeButton.onClick.AddListener(() => { ReturnToMenu(); });
+        empezarIntermedioButton.onClick.AddListener(() => { EmpezarIntermedio(); });
         empezarApagadoButton.onClick.AddListener(() => { EmpezarApagado(); });
         finalizarButton.onClick.AddListener(() => { FinalizarSimulacion(); });
         abrirOtroPopupButton.onClick.AddListener(() => { AbrirOtroPopup(); });
+
         UpdateButtons();
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
     }
+
     private bool popupSequenceStarted = false;
+
+    // NUEVO: Método para mostrar resultados según el modo
+    public void ShowResultsPopup(ProcessMode mode)
+    {
+        currentMode = mode;
+        StartPopupSequence();
+    }
+
     public void ShowPopup()
     {
-        // Solo preparar los datos, no mostrar aún
-        float tiempo = isApagadoMode ?
-            sequenceManager.GetCompletionTime() :
-            sequenceManager.GetStartupTime();
+        float tiempo = 0f;
+        string procesoNombre = "";
+        bool procesoCompleto = false;
+
+        // NUEVO: Determinar datos según el modo actual
+        switch (currentMode)
+        {
+            case ProcessMode.Startup:
+                tiempo = sequenceManager.GetStartupTime();
+                procesoNombre = "ENCENDIDO";
+                procesoCompleto = sequenceManager.isStartupComplete;
+                break;
+            case ProcessMode.Intermediate:
+                tiempo = sequenceManager.GetIntermediateTime();
+                procesoNombre = "OPERACIÓN";
+                procesoCompleto = sequenceManager.isIntermediateComplete;
+                break;
+            case ProcessMode.Shutdown:
+                tiempo = sequenceManager.GetCompletionTime();
+                procesoNombre = "APAGADO";
+                procesoCompleto = sequenceManager.isShutdownComplete;
+                break;
+        }
 
         int totalErrores = simulationManager != null ? simulationManager.ActiveErrors.Count : 0;
-        bool procesoCompleto = isApagadoMode ?
-            sequenceManager.isShutdownComplete :
-            sequenceManager.isStartupComplete;
-
-        string procesoNombre = isApagadoMode ? "APAGADO" : "ENCENDIDO";
 
         string status = (totalErrores == 0 && procesoCompleto) ?
             $"<color=green>¡{procesoNombre} EXITOSO!</color>" :
             $"<color=red>¡{procesoNombre} CON ERRORES!</color>";
 
         resultadosText.text = $"{status}\n\n" +
+                             $"PROCESO: {procesoNombre}\n" +
                              $"PASOS CORRECTOS: {(procesoCompleto ? "COMPLETADOS" : "INCOMPLETOS")}\n" +
                              $"ERRORES COMETIDOS: {totalErrores}";
 
@@ -92,7 +129,6 @@ public class PopupController : MonoBehaviour
         {
             erroresText.gameObject.SetActive(true);
             erroresText.text = "ERRORES:\n";
-
             foreach (string error in simulationManager.ActiveErrors)
             {
                 erroresText.text += $"- {error}\n";
@@ -102,17 +138,16 @@ public class PopupController : MonoBehaviour
         UpdateButtons();
     }
 
-    private void EmpezarApagado()
+    // NUEVO: Método para proceso intermedio
+    private void EmpezarIntermedio()
     {
         popupSequenceStarted = false;
-        isApagadoMode = true;
+        currentMode = ProcessMode.Intermediate;
         popupPanel.SetActive(false);
 
-        
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
 
-   
         if (moveCamera != null)
         {
             moveCamera.EnableControls();
@@ -122,8 +157,32 @@ public class PopupController : MonoBehaviour
         if (simulationManager != null)
             simulationManager.ActiveErrors.Clear();
 
-        sequenceManager.ResetApagadoTime();
+        if (sequenceManager != null)
+            sequenceManager.StartIntermediateProcess();
     }
+
+    private void EmpezarApagado()
+    {
+        popupSequenceStarted = false;
+        currentMode = ProcessMode.Shutdown;
+        popupPanel.SetActive(false);
+
+        if (objetoEspecial != null)
+            objetoEspecial.SetActive(false);
+
+        if (moveCamera != null)
+        {
+            moveCamera.EnableControls();
+            moveCamera.MoveToSpecificPosition(1);
+        }
+
+        if (simulationManager != null)
+            simulationManager.ActiveErrors.Clear();
+
+        if (sequenceManager != null)
+            sequenceManager.StartShutdownProcess();
+    }
+
     public void AbrirOtroPopup()
     {
         otroPopupPanel.SetActive(true);
@@ -135,6 +194,7 @@ public class PopupController : MonoBehaviour
     {
         ReturnToMenu();
     }
+
     public void StartPopupSequence()
     {
         Debug.Log("StartPopupSequence llamado");
@@ -147,7 +207,6 @@ public class PopupController : MonoBehaviour
 
         popupSequenceStarted = true;
 
-        
         if (objetoEspecial != null)
         {
             objetoEspecial.SetActive(true);
@@ -165,39 +224,48 @@ public class PopupController : MonoBehaviour
             ShowPopupConAnimacion();
         }
     }
+
     private void ShowPopupAfterDelay()
     {
         Debug.Log("ShowPopupAfterDelay llamado - mostrando popup");
         ShowPopupConAnimacion();
     }
 
-
     private void UpdateButtons()
     {
-        if (isApagadoMode)
+        // NUEVO: Lógica actualizada para los 3 procesos
+        switch (currentMode)
         {
-            empezarApagadoButton.gameObject.SetActive(false);
-            finalizarButton.gameObject.SetActive(true);
-        }
-        else
-        {
-            empezarApagadoButton.gameObject.SetActive(true);
-            finalizarButton.gameObject.SetActive(false);
+            case ProcessMode.Startup:
+                empezarIntermedioButton.gameObject.SetActive(true);
+                empezarApagadoButton.gameObject.SetActive(false);
+                finalizarButton.gameObject.SetActive(false);
+                break;
+            case ProcessMode.Intermediate:
+                empezarIntermedioButton.gameObject.SetActive(false);
+                empezarApagadoButton.gameObject.SetActive(true);
+                finalizarButton.gameObject.SetActive(false);
+                break;
+            case ProcessMode.Shutdown:
+                empezarIntermedioButton.gameObject.SetActive(false);
+                empezarApagadoButton.gameObject.SetActive(false);
+                finalizarButton.gameObject.SetActive(true);
+                break;
         }
     }
+
     public void CerrarOtroPopup()
     {
         otroPopupPanel.transform.DOScale(Vector3.zero, 0.3f)
             .SetEase(Ease.InBack)
             .OnComplete(() => {
                 otroPopupPanel.SetActive(false);
-                
                 otroPopupPanel.transform.localScale = escalaOriginalOtroPopup;
             });
     }
+
     private void ShowPopupConAnimacion()
     {
-        
         ShowPopup();
         if (objetoEspecial != null)
             objetoEspecial.SetActive(true);
@@ -208,15 +276,14 @@ public class PopupController : MonoBehaviour
             .SetEase(Ease.OutBack)
             .SetUpdate(true);
     }
+
     private void ReturnToMenu()
     {
         popupSequenceStarted = false;
 
-  
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
 
-    
         if (moveCamera != null)
             moveCamera.EnableControls();
 
@@ -227,7 +294,7 @@ public class PopupController : MonoBehaviour
                     simulationManager.ResetSimulation();
 
                 sequenceManager.ResetSequence();
-                isApagadoMode = false;
+                currentMode = ProcessMode.Startup;
                 SceneManager.LoadScene(menuSceneName);
                 Time.timeScale = 1f;
             });

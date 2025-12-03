@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ExcitationBreakerEb_0: -6905922443777153916
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

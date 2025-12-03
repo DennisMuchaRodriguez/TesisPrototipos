@@ -172,7 +172,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      BotonLuzIzqTres_0: 8850698517860003333
+      BotonLuzIzqTres_1: 1540875288566295824
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
