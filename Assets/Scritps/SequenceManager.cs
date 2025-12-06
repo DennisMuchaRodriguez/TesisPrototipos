@@ -22,6 +22,7 @@ public class SequenceManager : MonoBehaviour
     public List<SimulationStep> startupSequence = new List<SimulationStep>();
     public List<SimulationStep> intermediateSequence = new List<SimulationStep>(); // NUEVO: Proceso intermedio
     public List<SimulationStep> shutdownSequence = new List<SimulationStep>();
+    public enum ProcessType { Startup, Intermediate, Shutdown }
 
     [Header("Configuración")]
     public bool isStartupComplete = false;
@@ -39,6 +40,8 @@ public class SequenceManager : MonoBehaviour
     public UnityEvent OnIntermediateComplete = new UnityEvent(); // NUEVO
     public UnityEvent OnShutdownComplete = new UnityEvent();
     public UnityEvent OnSequenceError = new UnityEvent();
+   
+    public UnityEvent<ProcessType> OnProcessStarted = new UnityEvent<ProcessType>();
 
     [Header("Feedback de Error")]
     public AudioClip errorSound;
@@ -59,6 +62,7 @@ public class SequenceManager : MonoBehaviour
 
         if (errorMessagePanel != null)
             errorMessagePanel.SetActive(false);
+        OnProcessStarted.Invoke(ProcessType.Startup);
     }
 
     public bool RegisterButtonPress(string buttonId)
@@ -210,6 +214,7 @@ public class SequenceManager : MonoBehaviour
         isIntermediateComplete = false;
         currentIntermediateStep = 0;
         intermediateStartTime = Time.time;
+        OnProcessStarted.Invoke(ProcessType.Intermediate); // ← Agrega esto
         Debug.Log("Iniciando proceso intermedio...");
     }
 
@@ -219,6 +224,7 @@ public class SequenceManager : MonoBehaviour
         isShutdownComplete = false;
         currentShutdownStep = 0;
         startTime = Time.time;
+        OnProcessStarted.Invoke(ProcessType.Shutdown); // ← Agrega esto
         Debug.Log("Iniciando proceso de apagado...");
     }
 

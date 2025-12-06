@@ -22,6 +22,8 @@ public class PopupController : MonoBehaviour
     private Vector3 escalaOriginalOtroPopup;
     public SequenceManager sequenceManager;
     public SimulationManager simulationManager;
+    [Header("Referencias Popup Proceso")]
+    public ProcessPopupController processPopup;
 
     // NUEVO: Modos de operación
     public enum ProcessMode { Startup, Intermediate, Shutdown }
@@ -67,7 +69,8 @@ public class PopupController : MonoBehaviour
         empezarApagadoButton.onClick.AddListener(() => { EmpezarApagado(); });
         finalizarButton.onClick.AddListener(() => { FinalizarSimulacion(); });
         abrirOtroPopupButton.onClick.AddListener(() => { AbrirOtroPopup(); });
-
+        if (processPopup == null)
+            processPopup = FindObjectOfType<ProcessPopupController>();
         UpdateButtons();
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
@@ -141,9 +144,30 @@ public class PopupController : MonoBehaviour
     // NUEVO: Método para proceso intermedio
     private void EmpezarIntermedio()
     {
+        Debug.Log("Iniciando proceso intermedio...");
+
+        // PRIMERO: Cerrar el popup de resultados si está activo
+        if (popupPanel != null && popupPanel.activeSelf)
+        {
+            Debug.Log("Cerrando popup de resultados antes de iniciar intermedio...");
+            popupPanel.transform.DOScale(Vector3.zero, 0.2f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() => {
+                    popupPanel.SetActive(false);
+                    ContinueIntermedioProcess();
+                });
+        }
+        else
+        {
+            ContinueIntermedioProcess();
+        }
+    }
+
+    private void ContinueIntermedioProcess()
+    {
         popupSequenceStarted = false;
         currentMode = ProcessMode.Intermediate;
-        popupPanel.SetActive(false);
 
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
@@ -159,13 +183,43 @@ public class PopupController : MonoBehaviour
 
         if (sequenceManager != null)
             sequenceManager.StartIntermediateProcess();
-    }
 
+        // NUEVO: Mostrar popup de proceso intermedio
+        if (processPopup != null)
+        {
+            Debug.Log("Llamando ShowIntermediatePopup...");
+            processPopup.ShowIntermediatePopup();
+        }
+        else
+        {
+            Debug.LogError("¡processPopup no asignado!");
+        }
+    }
     private void EmpezarApagado()
+    {
+        Debug.Log("Iniciando proceso de apagado...");
+
+        // PRIMERO: Cerrar el popup de resultados si está activo
+        if (popupPanel != null && popupPanel.activeSelf)
+        {
+            Debug.Log("Cerrando popup de resultados antes de iniciar apagado...");
+            popupPanel.transform.DOScale(Vector3.zero, 0.2f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() => {
+                    popupPanel.SetActive(false);
+                    ContinueApagadoProcess();
+                });
+        }
+        else
+        {
+            ContinueApagadoProcess();
+        }
+    }
+    private void ContinueApagadoProcess()
     {
         popupSequenceStarted = false;
         currentMode = ProcessMode.Shutdown;
-        popupPanel.SetActive(false);
 
         if (objetoEspecial != null)
             objetoEspecial.SetActive(false);
@@ -181,6 +235,17 @@ public class PopupController : MonoBehaviour
 
         if (sequenceManager != null)
             sequenceManager.StartShutdownProcess();
+
+        // NUEVO: Mostrar popup de proceso de apagado
+        if (processPopup != null)
+        {
+            Debug.Log("Llamando ShowShutdownPopup...");
+            processPopup.ShowShutdownPopup();
+        }
+        else
+        {
+            Debug.LogError("¡processPopup no asignado!");
+        }
     }
 
     public void AbrirOtroPopup()
